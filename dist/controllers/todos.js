@@ -1,8 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createTodo = void 0;
+exports.deleteTodo = exports.updateTodo = exports.createTodo = exports.getTodos = void 0;
 const todo_1 = require("../models/todo");
 const TODOS = [];
+const getTodos = (req, res, next) => {
+    res.json({ todos: TODOS });
+};
+exports.getTodos = getTodos;
 const createTodo = (req, res, next) => {
     const text = req.body.text;
     const newTodo = new todo_1.Todo(Math.random().toString(), text);
@@ -10,3 +14,24 @@ const createTodo = (req, res, next) => {
     res.status(201).json({ message: "Todo created!", createdTodo: newTodo });
 };
 exports.createTodo = createTodo;
+const updateTodo = (req, res, next) => {
+    const todoId = req.params.id;
+    const updatedText = req.body.text;
+    const todoIndex = TODOS.findIndex((todo) => todo.id === todoId);
+    if (todoIndex < 0) {
+        throw new Error("Could not find todo with this id!");
+    }
+    TODOS[todoIndex] = new todo_1.Todo(TODOS[todoIndex].id, updatedText);
+    res.json({ message: "Updated todo", updatedTodo: TODOS[todoIndex] });
+};
+exports.updateTodo = updateTodo;
+const deleteTodo = (req, res, next) => {
+    const todoId = req.params.id;
+    const todoIndex = TODOS.findIndex((todo) => todo.id === todoId);
+    if (todoIndex < 0) {
+        throw new Error("Could not find todo with this id!");
+    }
+    TODOS.splice(todoIndex, 1);
+    res.json({ message: "Deleted todo" });
+};
+exports.deleteTodo = deleteTodo;
